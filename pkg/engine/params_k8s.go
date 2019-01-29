@@ -243,6 +243,11 @@ func assignKubernetesParameters(properties *api.Properties, parametersMap params
 			}
 		}
 
+		staticTokenProfile := properties.StaticTokenProfile
+		if staticTokenProfile != nil {
+			addSecret(parametersMap, "staticToken", staticTokenProfile.StaticToken, true)
+		}
+
 		if properties.HostedMasterProfile != nil && properties.HostedMasterProfile.FQDN != "" {
 			addValue(parametersMap, "kubernetesEndpoint", properties.HostedMasterProfile.FQDN)
 		}

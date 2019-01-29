@@ -159,6 +159,12 @@
       },
       "type": "securestring"
     },
+    "staticToken": {
+      "metadata": {
+        "description": "The base 64 static token"
+      },
+      "type": "securestring"
+    },
     "generatorCode": {
       "metadata": {
         "description": "The generator code used to identify the generator"

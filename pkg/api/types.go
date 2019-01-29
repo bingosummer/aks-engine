@@ -83,6 +83,7 @@ type Properties struct {
 	JumpboxProfile          *JumpboxProfile          `json:"jumpboxProfile,omitempty"`
 	ServicePrincipalProfile *ServicePrincipalProfile `json:"servicePrincipalProfile,omitempty"`
 	CertificateProfile      *CertificateProfile      `json:"certificateProfile,omitempty"`
+	StaticTokenProfile      *StaticTokenProfile      `json:"staticTokenProfile,omitempty"`
 	AADProfile              *AADProfile              `json:"aadProfile,omitempty"`
 	CustomProfile           *CustomProfile           `json:"customProfile,omitempty"`
 	HostedMasterProfile     *HostedMasterProfile     `json:"hostedMasterProfile,omitempty"`
@@ -161,6 +162,11 @@ type CertificateProfile struct {
 	EtcdPeerCertificates []string `json:"etcdPeerCertificates,omitempty" conform:"redact"`
 	// EtcdPeerPrivateKeys is list of etcd peer private keys, and signed by the CA
 	EtcdPeerPrivateKeys []string `json:"etcdPeerPrivateKeys,omitempty" conform:"redact"`
+}
+
+// StaticTokenProfile represents the static token
+type StaticTokenProfile struct {
+	StaticToken string `json:"staticToken,omitempty" conform:"redact"`
 }
 
 // LinuxProfile represents the linux parameters passed to the cluster
@@ -373,6 +379,7 @@ type KubernetesConfig struct {
 	EnableDataEncryptionAtRest       *bool             `json:"enableDataEncryptionAtRest,omitempty"`
 	EnableEncryptionWithExternalKms  *bool             `json:"enableEncryptionWithExternalKms,omitempty"`
 	EnablePodSecurityPolicy          *bool             `json:"enablePodSecurityPolicy,omitempty"`
+	EnableStaticToken                *bool             `json:"enableStaticToken,omitempty"`
 	Addons                           []KubernetesAddon `json:"addons,omitempty"`
 	KubeletConfig                    map[string]string `json:"kubeletConfig,omitempty"`
 	ControllerManagerConfig          map[string]string `json:"controllerManagerConfig,omitempty"`

@@ -30,6 +30,7 @@ type generateCmd struct {
 	outputDirectory   string // can be auto-determined from clusterDefinition
 	caCertificatePath string
 	caPrivateKeyPath  string
+	staticTokenPath   string
 	noPrettyPrint     bool
 	parametersOnly    bool
 	set               []string
@@ -69,6 +70,7 @@ func newGenerateCmd() *cobra.Command {
 	f.StringVarP(&gc.outputDirectory, "output-directory", "o", "", "output directory (derived from FQDN if absent)")
 	f.StringVar(&gc.caCertificatePath, "ca-certificate-path", "", "path to the CA certificate to use for Kubernetes PKI assets")
 	f.StringVar(&gc.caPrivateKeyPath, "ca-private-key-path", "", "path to the CA private key to use for Kubernetes PKI assets")
+	f.StringVar(&gc.staticTokenPath, "static-token-path", "", "path to the static token to use for Kubernetes PKI assets")
 	f.StringArrayVar(&gc.set, "set", []string{}, "set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)")
 	f.BoolVar(&gc.noPrettyPrint, "no-pretty-print", false, "skip pretty printing the output")
 	f.BoolVar(&gc.parametersOnly, "parameters-only", false, "only output parameters files")
@@ -125,6 +127,7 @@ func (gc *generateCmd) mergeAPIModel() error {
 func (gc *generateCmd) loadAPIModel(cmd *cobra.Command, args []string) error {
 	var caCertificateBytes []byte
 	var caKeyBytes []byte
+	var staticTokenBytes []byte
 	var err error
 
 	apiloader := &api.Apiloader{
@@ -164,6 +167,19 @@ func (gc *generateCmd) loadAPIModel(cmd *cobra.Command, args []string) error {
 		}
 		prop.CertificateProfile.CaCertificate = string(caCertificateBytes)
 		prop.CertificateProfile.CaPrivateKey = string(caKeyBytes)
+	}
+
+	// consume gc.staticTokenPath
+	if gc.staticTokenPath != "" {
+		if staticTokenBytes, err = ioutil.ReadFile(gc.staticTokenPath); err != nil {
+			return errors.Wrap(err, "failed to read static token file")
+		}
+
+		prop := gc.containerService.Properties
+		if prop.StaticTokenProfile == nil {
+			prop.StaticTokenProfile = &api.StaticTokenProfile{}
+		}
+		prop.StaticTokenProfile.StaticToken = string(staticTokenBytes)
 	}
 
 	return nil

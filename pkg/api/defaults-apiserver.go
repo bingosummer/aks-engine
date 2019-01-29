@@ -33,6 +33,7 @@ func (cs *ContainerService) setAPIServerConfig() {
 		"--service-account-key-file":    "/etc/kubernetes/certs/apiserver.key",
 		"--kubelet-client-certificate":  "/etc/kubernetes/certs/client.crt",
 		"--kubelet-client-key":          "/etc/kubernetes/certs/client.key",
+		"--token-auth-file":             "/etc/kubernetes/static-token.csv",
 		"--service-cluster-ip-range":    o.KubernetesConfig.ServiceCIDR,
 		"--storage-backend":             o.GetAPIServerEtcdAPIVersion(),
 		"--enable-bootstrap-token-auth": "true",

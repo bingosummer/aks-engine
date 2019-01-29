@@ -47,6 +47,7 @@ type deployCmd struct {
 	forceOverwrite    bool
 	caCertificatePath string
 	caPrivateKeyPath  string
+	staticTokenPath   string
 	parametersOnly    bool
 	set               []string
 
@@ -94,6 +95,7 @@ func newDeployCmd() *cobra.Command {
 	f.StringVarP(&dc.outputDirectory, "output-directory", "o", "", "output directory (derived from FQDN if absent)")
 	f.StringVar(&dc.caCertificatePath, "ca-certificate-path", "", "path to the CA certificate to use for Kubernetes PKI assets")
 	f.StringVar(&dc.caPrivateKeyPath, "ca-private-key-path", "", "path to the CA private key to use for Kubernetes PKI assets")
+	f.StringVar(&dc.staticTokenPath, "static-token-path", "", "path to the static token to use for Kubernetes PKI assets")
 	f.StringVarP(&dc.resourceGroup, "resource-group", "g", "", "resource group to deploy to (will use the DNS prefix from the apimodel if not specified)")
 	f.StringVarP(&dc.location, "location", "l", "", "location to deploy to (required)")
 	f.BoolVarP(&dc.forceOverwrite, "force-overwrite", "f", false, "automatically overwrite existing files in the output directory")
@@ -174,6 +176,7 @@ func (dc *deployCmd) mergeAPIModel() error {
 func (dc *deployCmd) loadAPIModel(cmd *cobra.Command, args []string) error {
 	var caCertificateBytes []byte
 	var caKeyBytes []byte
+	var staticTokenBytes []byte
 	var err error
 
 	apiloader := &api.Apiloader{
@@ -207,6 +210,19 @@ func (dc *deployCmd) loadAPIModel(cmd *cobra.Command, args []string) error {
 		}
 		prop.CertificateProfile.CaCertificate = string(caCertificateBytes)
 		prop.CertificateProfile.CaPrivateKey = string(caKeyBytes)
+	}
+
+	// consume dc.staticTokenPath
+	if dc.staticTokenPath != "" {
+		if staticTokenBytes, err = ioutil.ReadFile(dc.staticTokenPath); err != nil {
+			return errors.Wrap(err, "failed to read static token file")
+		}
+
+		prop := dc.containerService.Properties
+		if prop.StaticTokenProfile == nil {
+			prop.StaticTokenProfile = &api.StaticTokenProfile{}
+		}
+		prop.StaticTokenProfile.StaticToken = string(staticTokenBytes)
 	}
 
 	if dc.containerService.Location == "" {

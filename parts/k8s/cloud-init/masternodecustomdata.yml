@@ -258,6 +258,13 @@ write_files:
   content: |
     {{WrapAsParameter "clientCertificate"}}
 
+- path: /etc/kubernetes/static-token.csv
+  permissions: "0644"
+  encoding: "base64"
+  owner: "root"
+  content: |
+    {{WrapAsParameter "staticToken"}}
+
 {{if EnableAggregatedAPIs}}
 - path: /etc/kubernetes/generate-proxy-certs.sh
   permissions: "0744"
